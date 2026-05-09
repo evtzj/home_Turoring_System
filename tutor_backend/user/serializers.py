@@ -2,11 +2,14 @@ from rest_framework import serializers
 from user.models import User
 
 class LoginSerializer(serializers.Serializer):
+        #设置手机号和账号名都可以登录
+        
         phone=serializers.CharField(max_length=20)
         password= serializers.CharField(write_only=True)
 
 
 class RegisterSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=20, required=False, allow_blank=True)
     phone = serializers.CharField(max_length=20)
     code =serializers.CharField(max_length=6)
     password=serializers.CharField(write_only=True,min_length=6)
@@ -19,6 +22,12 @@ class RegisterSerializer(serializers.Serializer):
             raise serializers.ValidationError("手机号已经被注册了")
         return value
     
+    def validate_username(self,value):
+        if value and len(value)>20:
+            raise serializers.ValidationError("用户名不能超过20个字符")
+        if value and User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("用户名已经被占用了")
+        return value
     def validate_code(self,value):
         #先格式校验，再接入短信验证码服务
         if not value.isdigit() or len(value)!=6:
@@ -31,10 +40,10 @@ class RegisterSerializer(serializers.Serializer):
         role = validated_data["role"]
 
         user = User.objects.create_user(
-            username=phone,
-            phone=phone,
-            password=password,
-            role=role,
+            username=validated_data.get("username") or validated_data["phone"],
+            phone=validated_data["phone"],
+            password=validated_data["password"],
+            role=validated_data["role"],
         )
         return user
     

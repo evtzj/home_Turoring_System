@@ -96,14 +96,15 @@ ASGI_APPLICATION = 'tutor_backend.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tutor_db',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # 数据库文件会生成在项目根目录
     }
 }
 
