@@ -92,3 +92,15 @@ def me_view(request):
         {"message": "参数错误", "errors": serializer.errors},
         status=status.HTTP_400_BAD_REQUEST
     )
+
+@api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    user = request.user
+    Token.objects.filter(user=user).delete()
+    return Response(
+        {"message":"退出成功"},
+        status=status.HTTP_200_OK
+    )
+    
