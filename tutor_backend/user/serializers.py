@@ -3,13 +3,28 @@ from user.models import User
 
 class LoginSerializer(serializers.Serializer):
         #设置手机号和账号名都可以登录
-        
-        phone=serializers.CharField(max_length=20)
+        account=serializers.CharField(max_length=20)
         password= serializers.CharField(write_only=True)
+        #先尝试账号登陆,如果账号不存在再尝试手机号登录
+        def validate(self,data):
+            account = data.get("account")
+            password = data.get("password")
+
+            user = User.objects.filter(username=account).first()
+            if user is None:
+                user = User.objects.filter(phone=account).first()
+                if user is None:
+                    raise serializers.ValidationError("账号不存在")
+            
+            if not user.check_password(password):
+                raise serializers.ValidationError("密码错误")
+            
+            data["user"]=user
+            return data
 
 
 class RegisterSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=20, required=False, allow_blank=True)
+    username = serializers.CharField(max_length=20, required=True, allow_blank=False)
     phone = serializers.CharField(max_length=20)
     code =serializers.CharField(max_length=6)
     password=serializers.CharField(write_only=True,min_length=6)

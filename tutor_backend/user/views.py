@@ -18,6 +18,7 @@ def register_view (request):
             {
                 "message":"注册成功",
                 "data":{
+                    "username":user.username,
                     "id":user.id,
                     "phone":user.phone,
                     "role":user.role,
@@ -44,15 +45,7 @@ def login_view(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    phone =serializer.validated_data["phone"]
-    password =serializer.validated_data["password"]
-
-    user=authenticate(username=phone,password=password)
-    if user is None:
-        return Response(
-            {"message":"手机号或密码错误"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    user=serializer.validated_data["user"]
     
     token, _=Token.objects.get_or_create(user=user)
     return Response(
@@ -61,6 +54,7 @@ def login_view(request):
             "data":{
                 "token":token.key,
                 "id":user.id,
+                "username":user.username,
                 "phone":user.phone,
                 "role":user.role
             }
