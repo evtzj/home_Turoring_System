@@ -19,5 +19,6 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/user/',include('user.urls')),#所有用户相关接口走这个路径
+    path('api/user/',include('user.urls')),
+    path('api/info/',include('info.urls')),
 ]
