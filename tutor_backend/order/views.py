@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
 # Create your views here.
-@api_view(['POST'],['GET'])
+@api_view(['POST','GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def list_or_create_order(request):
@@ -42,14 +42,7 @@ def list_or_create_order(request):
         )
     
 
-# @api_view(['GET'])
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
-# def list_orders(request):
-#     """订单列表接口：学生查看自己的订单列表"""
-   
-
-@api_view(['GET'],['PUT'])
+@api_view(['GET','PUT'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def order_detail(request, pk):
@@ -61,14 +54,19 @@ def order_detail(request, pk):
             {"message": "订单不存在"},
             status=status.HTTP_404_NOT_FOUND
         )
-
+    #不是这个订单的老师或者学生就拒接访问
+    if order.student != request.user and order.teacher.user != request.user:
+            return Response(
+                {"message": "你没有权限查看这个订单"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+    
     if request.method == 'GET':
         serializer = OrderDetailSerializer(order)
         return Response(
             {"message": "订单详情获取成功", "data": serializer.data},
             status=status.HTTP_200_OK
         )
-
     if request.method == 'PUT':
         # 只有教师可以接单或完成订单
         if request.user.role != 'teacher':
@@ -89,8 +87,15 @@ def order_detail(request, pk):
                 {"message": "无效的订单状态"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = OrderDetailSerializer(order)
+        serializer = OrderDetailSerializer(order,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "订单状态更新成功", "data": serializer.data},
+                status=status.HTTP_200_OK
+            )
         return Response(
-            {"message": "订单状态更新成功", "data": serializer.data},
-            status=status.HTTP_200_OK
+            {"message": "订单状态更新失败", "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
+        
