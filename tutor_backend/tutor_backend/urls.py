@@ -25,4 +25,5 @@ urlpatterns = [
     path("api/match/",include('match.urls')),
     path("api/chat/",include('chat.urls')),
     path("api/admin/",include('admin_api.urls')),
+    path('', include('frontend.urls')),
 ]

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'chat',
     'order',
     'admin_api',
+    'frontend',
 
     'channels',
     'corsheaders',
@@ -69,7 +70,7 @@ ROOT_URLCONF = 'tutor_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家教平台 - 主页</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f6fa; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2 { font-size: 20px; }
+        .header button {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .card h3 { margin-bottom: 12px; color: #333; }
+        .card p { color: #666; font-size: 14px; margin-bottom: 6px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .stat-item .num { font-size: 36px; font-weight: bold; color: #667eea; }
+        .stat-item .label { font-size: 14px; color: #999; margin-top: 4px; }
+        .empty { text-align: center; color: #999; padding: 40px; }
+        .loading { text-align: center; color: #999; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>家教平台</h2>
+        <div>
+            <span id="userInfo" style="margin-right:20px;font-size:14px;"></span>
+            <button onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="container" id="content">
+        <p class="loading">加载中...</p>
+    </div>
+
+    <script>
+        // ==================== 读取登录信息 ====================
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        // 没登录就跳回登录页
+        if (!token) {
+            window.location.href = '/login/';
+        }
+
+        document.getElementById('userInfo').textContent =
+            `${user.username}（${user.role === 'teacher' ? '教师' : user.role === 'admin' ? '管理员' : '学生'}）`;
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/login/';
+        }
+
+        // ==================== 调后端接口的通用函数 ====================
+        async function apiFetch(url, method = 'GET') {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Token ' + token   // ← token 认证！
+                }
+            });
+            return res.json();
+        }
+
+        // ==================== 根据角色加载不同内容 ====================
+        async function loadDashboard() {
+            const container = document.getElementById('content');
+
+            if (user.role === 'student') {
+                // ===== 学生：看老师列表 =====
+                const data = await apiFetch('/api/info/teachers/');
+                if (!data.data || data.data.length === 0) {
+                    container.innerHTML = '<p class="empty">暂无老师信息</p>';
+                    return;
+                }
+                let html = '<h3 style="margin-bottom:16px;">教师列表</h3>';
+                data.data.forEach(teacher => {
+                    html += `
+                        <div class="card">
+                            <h3>${teacher.username} · ${teacher.subject}</h3>
+                            <p>教龄：${teacher.teaching_years} 年</p>
+                            <p>学历：${teacher.education || '未填写'}</p>
+                        </div>`;
+                });
+                container.innerHTML = html;
+
+            } else if (user.role === 'teacher') {
+                // ===== 老师：看发给自己的订单 =====
+                const data = await apiFetch('/api/order/orders/');
+                if (!data.data || data.data.length === 0) {
+                    container.innerHTML = '<p class="empty">暂无订单</p>';
+                    return;
+                }
+                let html = '<h3 style="margin-bottom:16px;">我的订单</h3>';
+                data.data.forEach(order => {
+                    html += `
+                        <div class="card">
+                            <h3>${order.subject} · ¥${order.price}</h3>
+                            <p>学生：${order.student_username}</p>
+                            <p>时间：${order.scheduled_time || '未指定'}</p>
+                            <p>状态：${order.status}</p>
+                        </div>`;
+                });
+                container.innerHTML = html;
+
+            } else if (user.role === 'admin') {
+                // ===== 管理员：看统计 =====
+                const data = await apiFetch('/api/admin/stats/');
+                container.innerHTML = `
+                    <h3 style="margin-bottom:16px;">平台统计</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="num">${data.data.total_users}</div>
+                            <div class="label">总用户</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="num">${data.data.total_students}</div>
+                            <div class="label">学生</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="num">${data.data.total_teachers}</div>
+                            <div class="label">教师</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="num">${data.data.total_matches}</div>
+                            <div class="label">匹配数</div>
+                        </div>
+                    </div>`;
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>
