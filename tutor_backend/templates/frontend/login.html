@@ -3,138 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 家教平台</title>
+    <title>登录 - Tutor</title>
     <style>
+        :root {
+            --bg: #000;
+            --surface: #1c1c1e;
+            --text: #f5f5f7;
+            --text-secondary: #86868b;
+            --accent: #0071e3;
+            --accent-hover: #0077ed;
+            --border: rgba(255,255,255,0.08);
+            --radius: 18px;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(0,113,227,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(175,82,222,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(255,149,0,0.04) 0%, transparent 50%);
         }
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-            width: 380px;
+
+        /* ====== 导航 ====== */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid var(--border);
         }
-        h1 {
+        .nav-logo {
+            font-size: 21px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: var(--text);
+        }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: -0.2px;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+
+        /* ====== 主容器 ====== */
+        .hero {
             text-align: center;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 24px;
+            max-width: 460px;
+            width: 100%;
+            padding: 24px;
         }
-        .subtitle {
-            text-align: center;
-            color: #999;
-            margin-bottom: 30px;
-            font-size: 14px;
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            letter-spacing: -0.2px;
         }
-        .form-group {
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff 0%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero .subhead {
+            font-size: 19px;
+            color: var(--text-secondary);
+            letter-spacing: -0.3px;
+            margin-bottom: 48px;
+            line-height: 1.4;
+        }
+
+        /* ====== 表单卡片 ====== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 32px;
+            text-align: left;
+        }
+        .field {
             margin-bottom: 20px;
         }
-        label {
+        .field label {
             display: block;
-            color: #555;
-            margin-bottom: 6px;
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
-        input {
+        .field input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: var(--text);
             font-size: 16px;
+            letter-spacing: -0.3px;
+            outline: none;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0,113,227,0.15);
+            background: rgba(255,255,255,0.06);
+        }
+        .field input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: all 0.25s;
+            font-family: inherit;
+            margin-top: 8px;
         }
-        button:hover { opacity: 0.9; }
-        .error {
-            color: #e74c3c;
+        .btn:hover {
+            background: #e5e5e5;
+            transform: scale(1.01);
+        }
+        .btn:active {
+            transform: scale(0.98);
+            transition: transform 0.1s;
+        }
+
+        .error-msg {
             font-size: 13px;
-            margin-bottom: 15px;
-            display: none;
-        }
-        .switch-link {
+            color: #ff453a;
+            margin-bottom: 16px;
             text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #999;
+            display: none;
+            letter-spacing: -0.2px;
         }
-        .switch-link a { color: #667eea; text-decoration: none; }
+
+        .footnote {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            letter-spacing: -0.2px;
+        }
+        .footnote a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .footnote a:hover { text-decoration: underline; }
+
+        /* ====== 页脚 ====== */
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.2);
+            text-align: center;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h1>家教平台</h1>
-        <p class="subtitle">登录你的账号</p>
 
-        <div class="error" id="error"></div>
+    <nav class="nav">
+        <div class="nav-logo">Tutor</div>
+        <ul class="nav-links">
+            <li><a href="/login/">登录</a></li>
+            <li><a href="/register/">注册</a></li>
+        </ul>
+    </nav>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <label>手机号 / 用户名</label>
-                <input type="text" id="account" placeholder="输入手机号或用户名" required>
-            </div>
-            <div class="form-group">
-                <label>密码</label>
-                <input type="password" id="password" placeholder="输入密码" required>
-            </div>
-            <button type="submit">登 录</button>
-        </form>
+    <div class="hero">
+        <div class="hero-badge">教育，重新定义</div>
+        <h1>连接知识与未来</h1>
+        <p class="subhead">找到最合适你的老师，让每一次学习都值得。</p>
 
-        <p class="switch-link">
-            还没有账号？<a href="/register/">去注册</a>
-        </p>
+        <div class="card">
+            <div class="error-msg" id="error"></div>
+            <form id="loginForm">
+                <div class="field">
+                    <label>手机号或用户名</label>
+                    <input type="text" id="account" placeholder="输入手机号或用户名" required>
+                </div>
+                <div class="field">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="输入密码" required>
+                </div>
+                <button type="submit" class="btn">登录</button>
+            </form>
+        </div>
+
+        <p class="footnote">还没有账号？<a href="/register/">创建新账号 →</a></p>
     </div>
+
+    <div class="footer">© 2026 Tutor. All rights reserved.</div>
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            const account = document.getElementById('account').value;
-            const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('error');
-
+            const el = document.getElementById('error');
             try {
                 const res = await fetch('/api/user/login/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ account, password })
+                    body: JSON.stringify({
+                        account: document.getElementById('account').value,
+                        password: document.getElementById('password').value
+                    })
                 });
-
                 const data = await res.json();
-
                 if (res.ok) {
-                    // 登录成功，把 token 存到浏览器
                     localStorage.setItem('token', data.data.token);
                     localStorage.setItem('user', JSON.stringify(data.data));
-                    // 跳转到主页
                     window.location.href = '/dashboard/';
                 } else {
-                    errorEl.textContent = data.message || '登录失败';
-                    errorEl.style.display = 'block';
+                    el.textContent = data.message || '登录失败';
+                    el.style.display = 'block';
                 }
             } catch (err) {
-                errorEl.textContent = '网络错误，请稍后重试';
-                errorEl.style.display = 'block';
+                el.textContent = '网络错误，请稍后重试';
+                el.style.display = 'block';
             }
         });
     </script>
