@@ -15,6 +15,7 @@ class UserApiFlowTests(APITestCase):
 
 	def test_register_success(self):
 		payload = {
+			'username': '13800000021',
 			'phone': '13800000021',
 			'code': '123456',
 			'password': 'abc12345',
@@ -36,7 +37,7 @@ class UserApiFlowTests(APITestCase):
 		)
 
 		payload = {
-			'phone': '13800000022',
+			'account': '13800000022',
 			'password': 'abc12345',
 		}
 
