@@ -2,8 +2,10 @@ services:
   web:
     build: .
     container_name: tutor-web
+    ports:
+      - "8088:8000"
     volumes:
-      - db_data:/ap/tutor_backend
+      - db_data:/app/tutor_backend
     restart: always
 
 
