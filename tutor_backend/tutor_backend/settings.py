@@ -105,7 +105,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',  # 数据库文件会生成在项目根目录
+        'NAME': BASE_DIR / 'data' / 'db.sqlite3',
     }
 }
 
