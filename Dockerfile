@@ -3,5 +3,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
+WORKDIR /app/tutor_backend
 EXPOSE 8000
-CMD ["gunicorn", "--chdir", "tutor_backend", "tutor_backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "tutor_backend.asgi:application"]

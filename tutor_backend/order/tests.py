@@ -27,9 +27,9 @@ class OrderApiFlowTests (APITestCase):
     def test_create_order(self):
         self.client.force_authenticate(user = self.student_user)
         payload = {
-            'teacher_id': self.teacher_user.teacherprofile.id,
+            'teacher': self.teacher_user.teacher_profile.id,
             'subject': '数学',
-            'student':'学生一',
+            'student':self.student_user.id,
             'scheduled_time':'2024-07-01T10:00:00Z',
             'duration': 60,
             'price': 200.00,
@@ -47,13 +47,14 @@ class OrderApiFlowTests (APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['message'], '订单列表获取成功')
 
+    
     def test_order_detail(self):
         self.client.force_authenticate(user = self.student_user)
         # 创建订单
         payload = {
-            'teacher_id': self.teacher_user.teacherprofile.id,
+            'teacher': self.teacher_user.teacher_profile.id,
             'subject': '数学',
-            'student':'学生一',
+            'student':self.student_user.id,
             'scheduled_time':'2024-07-01T10:00:00Z',
             'duration': 60,
             'price': 200.00,

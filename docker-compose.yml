@@ -1,7 +1,14 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: tutor-redis
+    restart: always
+
   web:
     build: .
     container_name: tutor-web
+    depends_on:
+      - redis
     ports:
       - "8088:8000"
     volumes:
