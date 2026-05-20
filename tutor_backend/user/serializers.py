@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from user.models import User
+from user.models import User,TeacherProfile
 
 class LoginSerializer(serializers.Serializer):
         #设置手机号和账号名都可以登录
@@ -29,7 +29,8 @@ class RegisterSerializer(serializers.Serializer):
     code =serializers.CharField(max_length=6)
     password=serializers.CharField(write_only=True,min_length=6)
     role=serializers.ChoiceField(choices=['student','teacher'])
-
+    subject = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    teaching_years = serializers.IntegerField(required=False, min_value=0)
     def validate_phone(self,value):
         if not value.isdigit() or len(value) !=11:
             raise serializers.ValidationError("手机号得是11位数的")
@@ -48,6 +49,12 @@ class RegisterSerializer(serializers.Serializer):
         if not value.isdigit() or len(value)!=6:
             raise serializers.ValidationError('验证码必须是6位数')
         return value
+    def validate(self,data):
+        if data["role"]=="teacher" and not data.get("subject"):
+            raise serializers.ValidationError("教师必须提供授课科目")
+        if data["role"]=="teacher" and data.get("teaching_years") is None:
+            raise serializers.ValidationError("教师必须提供教龄")
+        return data
     
     def create(self,validated_data):
         phone =validated_data["phone"]
@@ -60,6 +67,8 @@ class RegisterSerializer(serializers.Serializer):
             password=validated_data["password"],
             role=validated_data["role"],
         )
+        if role == "teacher" and validated_data.get("subject") and validated_data.get("teaching_years") is not None:
+            TeacherProfile.objects.create(user=user, subject=validated_data.get("subject"), teaching_years=validated_data.get("teaching_years"))
         return user
     
 class UserProfileSerializer(serializers.ModelSerializer):
