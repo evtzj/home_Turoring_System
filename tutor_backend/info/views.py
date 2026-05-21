@@ -6,6 +6,11 @@ from info.serializers import TeacherListSerializer, TeacherDetailSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from info.models import TeacherFavorite
+from rest_framework.decorators import authentication_classes,permission_classes
+
+
+
+
 @api_view(['GET'])
 def teacher_list(request):
     """老师列表接口：支持按科目筛选、按教龄排序"""
@@ -67,5 +72,33 @@ def favorite_teacher(request,pk):
         )
     return Response(
         {"message": "收藏成功"},
+        status=status.HTTP_201_CREATED
+    )
+
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_favorite_teacher(request, pk):
+    teacher = TeacherProfile.objects.filter(pk=pk, user__role='teacher').first()
+    if not teacher:
+        return Response(
+            {"message": "老师不存在"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    student = request.user
+    if student.role != 'student':
+        return Response(
+            {"message": "只有学生可以取消收藏老师"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    favorite = TeacherFavorite.objects.filter(student=student, teacher=teacher).first()
+    if not favorite:
+        return Response(
+            {"message": "你没有收藏过这个老师"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    favorite.delete()
+    return Response(
+        {"message": "取消收藏成功"},
         status=status.HTTP_200_OK
     )

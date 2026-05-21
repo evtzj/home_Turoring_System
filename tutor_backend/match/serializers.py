@@ -7,7 +7,7 @@ class MatchDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
         fields = '__all__'
-
+        read_only_fields = [ 'student', 'created_at']
 
 class MatchListSerializer(serializers.ModelSerializer):
     student_username = serializers.CharField(source='student.username', read_only=True)
